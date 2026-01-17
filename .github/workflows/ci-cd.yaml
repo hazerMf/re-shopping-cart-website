@@ -67,17 +67,20 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Use absolute path to docker
-            /usr/bin/docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
+            # 1. Pull the new image (Added sudo)
+            sudo /usr/bin/docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
             
-            /usr/bin/docker stop re-shopping-cart-app || true
-            /usr/bin/docker rm re-shopping-cart-app || true
+            # 2. Stop and remove the old container (Added sudo)
+            sudo /usr/bin/docker stop re-shopping-cart-app || true
+            sudo /usr/bin/docker rm re-shopping-cart-app || true
             
-            /usr/bin/docker run -d \
+            # 3. Run the new container (Added sudo and fixed the path)
+            sudo /usr/bin/docker run -d \
               --name re-shopping-cart-app \
               --restart unless-stopped \
               -p 8080:8080 \
-              --env-file /home/${{ secrets.EC2_USERNAME }}/.env.prod \
+              --env-file /home/ubuntu/.env.prod \
               ${{ env.DOCKER_IMAGE_NAME }}:latest
             
-            /usr/bin/docker image prune -af
+            # 4. Clean up old images (Added sudo)
+            sudo /usr/bin/docker image prune -af
