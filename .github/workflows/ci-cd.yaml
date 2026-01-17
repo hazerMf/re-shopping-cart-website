@@ -67,20 +67,17 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Pull the latest image
-            docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
+            # Use absolute path to docker
+            /usr/bin/docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
             
-            # Stop and remove existing container if running
-            docker stop re-shopping-cart-app || true
-            docker rm re-shopping-cart-app || true
+            /usr/bin/docker stop re-shopping-cart-app || true
+            /usr/bin/docker rm re-shopping-cart-app || true
             
-            # Run new container
-            docker run -d \
+            /usr/bin/docker run -d \
               --name re-shopping-cart-app \
               --restart unless-stopped \
               -p 8080:8080 \
               --env-file /home/${{ secrets.EC2_USERNAME }}/.env.prod \
               ${{ env.DOCKER_IMAGE_NAME }}:latest
             
-            # Clean up unused images
-            docker image prune -af
+            /usr/bin/docker image prune -af
